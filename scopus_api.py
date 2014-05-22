@@ -2,15 +2,16 @@ import pycurl
 import xml.etree.ElementTree as ET
 import cStringIO
 
-APIKEY = '' # insert your API key
+APIKEY = '' # insert your API key here
 
 curl = pycurl.Curl()
 curl.setopt(pycurl.FAILONERROR, True)
 #curl.setopt(pycurl.CONNECTTIMEOUT, 15)
 #curl.setopt(pycurl.TIMEOUT, 15)
-curl.setopt(pycurl.HTTPHEADER, ['X-ELS-APIKey: ' + APIKEY,
-								'X-ELS-ResourceVersion: XOCS',
-								'accept: application/xml, text/xml'])
+curl.setopt(pycurl.HTTPHEADER, [
+	'X-ELS-APIKey: ' + APIKEY,
+	'X-ELS-ResourceVersion: XOCS',
+	'accept: application/xml, text/xml'])
 
 
 def perform_query(query):
