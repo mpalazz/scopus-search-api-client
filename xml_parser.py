@@ -78,3 +78,34 @@ def parse_multiple_authors_search_xml(root):
 		author_id_list.append(author_id.text[10:])
 			
 	return author_id_list
+	
+def parse_author_profile_xml(root):
+	doc = {}
+	
+	for child in root.findall('./*/*'):
+		if child.tag == '{http://purl.org/dc/elements/1.1/}identifier':
+			doc['author_id'] = int(child.text[10:])
+		elif child.tag == 'document-count':
+			doc['document_count'] = int(child.text)
+		elif child.tag == 'cited-by-count':
+			doc['cited_by_count'] = int(child.text)
+		elif child.tag == 'citation-count':
+			doc['citation_count'] = int(child.text)
+		elif child.tag == 'publication-range':
+			try:
+				doc['publication_start'] = int(child.attrib['start'])
+			except KeyError:
+				pass
+			try:
+				doc['publication_end'] = int(child.attrib['end'])
+			except KeyError:
+				pass
+		elif child.tag == 'classificationgroup':
+			classification_doc = {}
+			
+			for field in child.findall('./classifications/classification'):
+				classification_doc[field.text] = int(field.attrib['frequency'])
+				
+			doc['classifications'] = classification_doc
+
+	return doc

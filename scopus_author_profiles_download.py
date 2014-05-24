@@ -33,7 +33,20 @@ def retrieve_author_ids_by_affiliation_id(aff_id):
 	
 	return author_id_list
 	
+def retrieve_author_profile(author_id):
+	xml_buffer = scopus_api.get_author_profile_by_author_id(author_id)
+
+	if not xml_buffer is None:
+		xml_root = ET.fromstring(xml_buffer)
+		author_profile_document = xml_parser.parse_author_profile_xml(xml_root)
+		
+		return author_profile_document
+	else:
+		return None	
+
 
 if __name__ == '__main__':
-	sapienza_affiliation_id = '60032350'
-	download_author_profiles_to_mongo(sapienza_affiliation_id)
+	#sapienza_affiliation_id = '60032350'
+	#download_author_profiles_to_mongo(sapienza_affiliation_id)
+	author_id = '6701771330'
+	print retrieve_author_profile(author_id)
