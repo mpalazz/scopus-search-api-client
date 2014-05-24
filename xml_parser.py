@@ -49,3 +49,32 @@ def parse_author_products_xml(root, author_id):
 				documents.append(document)
 			
 	return documents
+
+def parse_document_xml(root):
+	document = {}
+	document['title'] = ""
+	document['date'] = ""
+	document['issn'] = []
+	document['isbn'] = []
+	coredata = root.find('./{http://www.elsevier.com/xml/svapi/abstract/dtd}coredata')
+	
+	for field in coredata:		
+		if field.tag == "{http://prismstandard.org/namespaces/basic/2.0/}publicationName":
+			document['title'] = field.text
+		elif field.tag == "{http://prismstandard.org/namespaces/basic/2.0/}coverDate":
+			document['date'] = field.text
+		elif field.tag == "{http://prismstandard.org/namespaces/basic/2.0/}issn":
+			li = document['issn']
+			li.append(field.text)
+		elif field.tag == "{http://prismstandard.org/namespaces/basic/2.0/}isbn":
+			li = document['isbn']
+			li.append(field.text)
+			
+	return document
+
+def parse_multiple_authors_search_xml(root):
+	author_id_list = []
+	for author_id in root.findall('./documents/author-profile/{http://purl.org/dc/elements/1.1/}identifier'):
+		author_id_list.append(author_id.text[10:])
+			
+	return author_id_list
