@@ -157,6 +157,20 @@ def add_journal_document_to_list(journal_list, journal_block):
 		
 	journal_list.append(journal_doc)
 	
+
+def add_name_document_to_list(names_list, name_block):
+	name = {}
+	if not name_block.find('./initials') is None:
+		name['initials'] = name_block.find('./initials').text
+	if not name_block.find('./indexed-name') is None:
+		name['indexed-name'] = name_block.find('./indexed-name').text
+	if not name_block.find('./surname') is None:
+		name['surname'] = name_block.find('./surname').text
+	if not name_block.find('./given-name') is None:
+		name['given-name'] = name_block.find('./given-name').text
+	
+	names_list.append(name)
+	
 	
 def parse_author_profile_xml(root):
 	doc = {}
@@ -196,9 +210,12 @@ def parse_author_profile_xml(root):
 			add_affiliations_to_list(affiliation_history, child)
 		elif child.tag == 'journal-history':
 			add_journals_to_list(journal_history, child)
+		elif child.tag == 'preferred-name' or child.tag == 'name-variant':
+			add_name_document_to_list(name_variants, child)
 
 	doc['affiliation_current'] = affiliation_current
 	doc['affiliation_history'] = affiliation_history
 	doc['journal_history'] = journal_history
+	doc['names'] = name_variants;
 	
 	return doc
