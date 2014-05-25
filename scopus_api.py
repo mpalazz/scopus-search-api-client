@@ -2,7 +2,7 @@ import pycurl
 import xml.etree.ElementTree as ET
 import cStringIO
 
-APIKEY = '4180d0d1db751b3002edc47967a007e1' # insert your API key here
+APIKEY = '' # insert your API key here
 
 curl = pycurl.Curl()
 curl.setopt(pycurl.FAILONERROR, True)
