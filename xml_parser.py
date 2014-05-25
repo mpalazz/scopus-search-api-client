@@ -78,9 +78,58 @@ def parse_multiple_authors_search_xml(root):
 		author_id_list.append(author_id.text[10:])
 			
 	return author_id_list
+
+def add_affiliations_to_list(affiliation_list, affiliation_superblock):
+	for affiliation_block in affiliation_superblock.findall('./affiliation'):
+		add_affiliation_document_to_list(affiliation_list, affiliation_block)
+		
+def add_affiliation_document_to_list(affiliation_list, affiliation_block):
+	affiliation_doc = {}
 	
+	try:
+		affiliation_doc['affiliation_id'] = int(affiliation_block.attrib['affiliation-id'])
+		affiliation_doc['type'] = affiliation_block.find('./ip-doc').attrib['type']
+		affiliation_doc['parent_id'] = int(affiliation_block.attrib['parent'])
+	except KeyError:
+		pass
+	
+	for field in affiliation_block.findall('./ip-doc/*'):
+		if field.tag == 'afnameid':
+			affiliation_doc['afnameid'] = affiliation_block.find('./ip-doc/afnameid').text
+		elif field.tag == 'afdispname':
+			affiliation_doc['afdispname'] = affiliation_block.find('./ip-doc/afdispname').text
+		elif field.tag == 'preferred-name':
+			affiliation_doc['preferred_name'] = affiliation_block.find('./ip-doc/preferred-name').text
+		elif field.tag == 'parent-preferred-name':
+			affiliation_doc['parent_preferred_name'] = affiliation_block.find('./ip-doc/parent-preferred-name').text
+		elif field.tag == 'sort-name':
+			affiliation_doc['sort_name'] = affiliation_block.find('./ip-doc/sort-name').text
+		elif field.tag == 'org-domain':
+			affiliation_doc['org_domain'] = affiliation_block.find('./ip-doc/org-domain').text
+		elif field.tag == 'org-URL':
+			affiliation_doc['org_url'] = affiliation_block.find('./ip-doc/org-URL').text
+		elif field.tag == 'address':
+			address_doc = {}
+			
+			if not affiliation_block.find('./ip-doc/address/address-part') is None:
+				address_doc['address_part'] = affiliation_block.find('./ip-doc/address/address-part').text
+			if not affiliation_block.find('./ip-doc/address/city') is None:
+				address_doc['city'] = affiliation_block.find('./ip-doc/address/city').text
+			if not affiliation_block.find('./ip-doc/address/state') is None:
+				address_doc['state'] = affiliation_block.find('./ip-doc/address/state').text
+			if not affiliation_block.find('./ip-doc/address/postal-code') is None:
+				address_doc['postal_code'] = affiliation_block.find('./ip-doc/address/postal-code').text
+			if not affiliation_block.find('./ip-doc/address/country') is None:
+				address_doc['country'] = affiliation_block.find('./ip-doc/address/country').text
+			
+			affiliation_doc['address'] = address_doc
+		
+	affiliation_list.append(affiliation_doc)
+
 def parse_author_profile_xml(root):
 	doc = {}
+	affiliation_current = []
+	affiliation_history = []
 	
 	for child in root.findall('./*/*'):
 		if child.tag == '{http://purl.org/dc/elements/1.1/}identifier':
@@ -107,5 +156,12 @@ def parse_author_profile_xml(root):
 				classification_doc[field.text] = int(field.attrib['frequency'])
 				
 			doc['classifications'] = classification_doc
+		elif child.tag == 'affiliation-current':
+			add_affiliations_to_list(affiliation_current, child)
+		elif child.tag == 'affiliation-history':
+			add_affiliations_to_list(affiliation_history, child)
+			
+	doc['affiliation_current'] = affiliation_current
+	doc['affiliation_history'] = affiliation_history
 
 	return doc
