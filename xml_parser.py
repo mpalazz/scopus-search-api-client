@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 import os	
+
 		
 def is_int(string):
 	try:
@@ -7,6 +8,7 @@ def is_int(string):
 		return True
 	except ValueError:
 		return False
+
 				
 def parse_author_products_xml(root, author_id):
 	documents = []
@@ -50,6 +52,7 @@ def parse_author_products_xml(root, author_id):
 			
 	return documents
 
+
 def parse_document_xml(root):
 	document = {}
 	document['title'] = ""
@@ -72,6 +75,7 @@ def parse_document_xml(root):
 			
 	return document
 
+
 def parse_multiple_authors_search_xml(root):
 	author_id_list = []
 	for author_id in root.findall('./documents/author-profile/{http://purl.org/dc/elements/1.1/}identifier'):
@@ -79,9 +83,11 @@ def parse_multiple_authors_search_xml(root):
 			
 	return author_id_list
 
+
 def add_affiliations_to_list(affiliation_list, affiliation_superblock):
 	for affiliation_block in affiliation_superblock.findall('./affiliation'):
 		add_affiliation_document_to_list(affiliation_list, affiliation_block)
+
 		
 def add_affiliation_document_to_list(affiliation_list, affiliation_block):
 	affiliation_doc = {}
@@ -126,8 +132,36 @@ def add_affiliation_document_to_list(affiliation_list, affiliation_block):
 		
 	affiliation_list.append(affiliation_doc)
 
+
+def add_journals_to_list(journal_list, journal_history_block):
+	for journal_block in journal_history_block.findall('./journal'):
+		add_journal_document_to_list(journal_list, journal_block)
+
+
+def add_journal_document_to_list(journal_list, journal_block):
+	journal_doc = {}
+	
+	try:
+		journal_doc['type'] = journal_block.attrib['type']
+	except KeyError:
+		pass
+	
+	for field in journal_block.findall('./*'):
+		if field.tag == 'sourcetitle':
+			journal_doc['sourcetitle'] = journal_block.find('./sourcetitle').text
+		elif field.tag == 'sourcetitle-abbrev':
+			journal_doc['sourcetitle_abbrev'] = journal_block.find('./sourcetitle-abbrev').text
+		elif field.tag == 'issn':
+			journal_doc['issn'] = journal_block.find('./issn').text
+		
+		
+	journal_list.append(journal_doc)
+	
+	
 def parse_author_profile_xml(root):
 	doc = {}
+	name_variants = []
+	journal_history = []
 	affiliation_current = []
 	affiliation_history = []
 	
@@ -160,8 +194,11 @@ def parse_author_profile_xml(root):
 			add_affiliations_to_list(affiliation_current, child)
 		elif child.tag == 'affiliation-history':
 			add_affiliations_to_list(affiliation_history, child)
-			
+		elif child.tag == 'journal-history':
+			add_journals_to_list(journal_history, child)
+
 	doc['affiliation_current'] = affiliation_current
 	doc['affiliation_history'] = affiliation_history
-
+	doc['journal_history'] = journal_history
+	
 	return doc
