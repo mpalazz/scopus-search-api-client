@@ -7,3 +7,5 @@ The scopus\_author\_profiles file contains methods that wrap API calls to retrie
 - single author profiles
 - multiple author profiles associated to a given affiliation
 - all documents associated to an author profile
+
+Please insert a valid API key in scopus_api.py in order to use this library.
