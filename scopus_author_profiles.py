@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 import scopus_api
 import xml_parser
 
+
 def retrieve_author_ids_by_affiliation_id(aff_id):
 	print 'Retrieving author ids for affiliation id ' + str(aff_id) + '...'
 	
@@ -33,6 +34,7 @@ def retrieve_author_ids_by_affiliation_id(aff_id):
 	
 	return author_id_list
 	
+	
 def retrieve_author_profile(author_id):
 	xml_buffer = scopus_api.get_author_profile_by_author_id(author_id)
 
@@ -45,8 +47,33 @@ def retrieve_author_profile(author_id):
 		return None	
 
 
+def retrieve_author_documents(author_id):
+	xml_buffer = scopus_api.get_documents_by_author_id(author_id)
+	
+	if not xml_buffer is None:
+		xml_root = ET.fromstring(xml_buffer)
+		total_results = xml_parser.get_total_results_from_author_products_xml(xml_root) 
+		documents = xml_parser.parse_author_products_xml(xml_root, int(author_id))
+		
+		if not total_results is None and total_results > 200:
+			offset_start = 200
+			while True:
+				xml_buffer = scopus_api.get_documents_by_author_id(author_id, offset_start)
+				xml_root = ET.fromstring(xml_buffer)
+				documents_to_add = xml_parser.parse_author_products_xml(xml_root, int(author_id))
+				
+				for doc in documents_to_add:
+					documents.append(doc)
+				
+				offset_start += 200
+				if offset_start > total_results:
+					break
+	
+	return documents
+
 if __name__ == '__main__':
 	#sapienza_affiliation_id = '60032350'
 	#download_author_profiles_to_mongo(sapienza_affiliation_id)
 	author_id = '6701771330'
-	print retrieve_author_profile(author_id)
+	#print retrieve_author_profile(author_id)
+	print retrieve_author_documents(author_id)

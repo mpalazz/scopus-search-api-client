@@ -9,6 +9,16 @@ def is_int(string):
 	except ValueError:
 		return False
 
+
+def get_total_results_from_author_products_xml(root):
+	elem = root.find('./{http://a9.com/-/spec/opensearch/1.1/}totalResults')
+	try:
+		total_results = int(elem.text)
+		return total_results
+	except ValueError:
+		print '   > ERROR parsing total results'
+		return None
+		
 				
 def parse_author_products_xml(root, author_id):
 	documents = []
