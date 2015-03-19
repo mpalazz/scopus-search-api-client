@@ -9,6 +9,42 @@ def is_int(string):
 	except ValueError:
 		return False
 
+def  get_cited_count_only(root, pmids):
+	record = {}
+	for elem in root.iter('{http://www.w3.org/2005/Atom}entry'):
+		# check for error tag
+		# if error - check google scholar. 
+  		import ipdb; ipdb.set_trace()  # breakpoint 6445f371 //
+
+		if  elem.find('{http://www.w3.org/2005/Atom}error') is not None:
+			print 'error in scopus request'
+		idEntry =  elem.find( \
+			'{http://www.w3.org/2005/Atom}pubmed-id')
+		if idEntry is not None:
+			
+			assert idEntry.text.strip() in pmids, \
+				'%s not in pmids' %idEntry.text.strip() 
+
+			pmid = idEntry.text.strip()
+
+			citeEntry =  elem.find( \
+				'{http://www.w3.org/2005/Atom}citedby-count')
+
+			if citeEntry is not None:
+				record[pmid]  =  int(citeEntry.text)
+			else:
+				print 'no citation entry found'
+				record[pmid]  =  -1
+				
+	if type(pmids)==str:
+		pmids = [pmids]					
+	for pmid in pmids:
+		if pmid not in record:
+			record[pmid] = -1
+
+	return record
+
+
 
 def get_total_results_from_author_products_xml(root):
 	elem = root.find('./{http://a9.com/-/spec/opensearch/1.1/}totalResults')

@@ -13,7 +13,6 @@ curl.setopt(pycurl.HTTPHEADER, [
 	'X-ELS-ResourceVersion: XOCS',
 	'accept: application/xml, text/xml'])
 
-
 def perform_query(query):
 	xml_buffer = cStringIO.StringIO()
 	
@@ -31,6 +30,26 @@ def perform_query(query):
 		print 'Scopus API error:', str(error)
 		return None
 
+def get_cited_count_by_PMID(pmids):
+	
+	assert len(pmids) < 26, 'list is longer than query limit for scopus'
+	cited_by_query_start = \
+		'http://api.elsevier.com/content/search/index:SCOPUS?query='
+	cited_by_query_end 	= '&field=citedby-count,pubmed-id'
+	cited_by_query_middle = ''
+	if type(pmids)==str:
+		pmids = [pmids]
+	for pmid in pmids:
+		if cited_by_query_middle == '':
+			cited_by_query_middle = 'PMID(' + str(pmid) + ')'
+		else:
+			cited_by_query_middle = cited_by_query_middle + '+OR+' \
+			+ 'PMID(' + str(pmid) + ')'
+
+	query = cited_by_query_start + cited_by_query_middle+ cited_by_query_end
+	# print query
+	return perform_query(query)
+	
 def get_authors_by_affiliation_id(aff_id, start_offset=1):
 	authors_by_affiliation_id_query = 'http://api.elsevier.com/content/affiliation/AFFILIATION_ID:'
 	query_parameters = '?view=authors&count=500&start=' + str(start_offset)

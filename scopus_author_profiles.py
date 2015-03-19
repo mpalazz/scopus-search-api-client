@@ -13,7 +13,7 @@ def retrieve_author_ids_by_affiliation_id(aff_id):
 		start_offset = num_queries * 500 + 1
 		print 'Downloading and parsing search list xml n. %s (start offset = %s)' % (str(num_queries + 1), str(start_offset))
 		
-		xml_buffer = scopus_api.get_authors_by_affiliation_id(sapienza_affiliation_id, start_offset)
+		xml_buffer = scopus_api.get_authors_by_affiliation_id(str(aff_id), start_offset)
 		
 		if not xml_buffer is None:
 			xml_root = ET.fromstring(xml_buffer)
