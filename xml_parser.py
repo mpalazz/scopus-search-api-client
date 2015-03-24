@@ -1,5 +1,4 @@
-import xml.etree.ElementTree as ET
-import os	
+import re	
 
 		
 def is_int(string):
@@ -14,7 +13,6 @@ def  get_cited_count_only(root, pmids):
 	for elem in root.iter('{http://www.w3.org/2005/Atom}entry'):
 		# check for error tag
 		# if error - check google scholar. 
-  		import ipdb; ipdb.set_trace()  # breakpoint 6445f371 //
 
 		if  elem.find('{http://www.w3.org/2005/Atom}error') is not None:
 			print 'error in scopus request'
@@ -54,8 +52,7 @@ def get_total_results_from_author_products_xml(root):
 	except ValueError:
 		print '   > ERROR parsing total results'
 		return None
-		
-				
+
 def parse_author_products_xml(root, author_id):
 	documents = []
 
@@ -214,7 +211,6 @@ def add_name_document_to_list(names_list, name_block):
 		name['surname'] = name_block.find('./surname').text
 	if not name_block.find('./given-name') is None:
 		name['given-name'] = name_block.find('./given-name').text
-	
 	names_list.append(name)
 	
 	
